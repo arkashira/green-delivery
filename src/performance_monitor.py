@@ -1,28 +1,25 @@
+import json
 from dataclasses import dataclass
 from typing import List
-import json
 
 @dataclass
-class PerformanceMetric:
-    name: str
-    value: float
+class RoutePerformance:
+    route_id: int
+    on_time_rate: float
+    average_delivery_time: float
 
 class PerformanceMonitor:
     def __init__(self):
-        self.metrics = []
+        self.route_performances = {}
 
-    def add_metric(self, metric: PerformanceMetric):
-        self.metrics.append(metric)
+    def track_performance(self, route_id: int, on_time_rate: float, average_delivery_time: float):
+        self.route_performances[route_id] = RoutePerformance(route_id, on_time_rate, average_delivery_time)
 
-    def get_report(self) -> str:
-        report = {"metrics": []}
-        for metric in self.metrics:
-            report["metrics"].append({"name": metric.name, "value": metric.value})
-        return json.dumps(report)
+    def get_performance_report(self, route_id: int):
+        return self.route_performances.get(route_id)
 
-    def alert_significant_changes(self, threshold: float) -> List[str]:
-        alerts = []
-        for metric in self.metrics:
-            if metric.value > threshold:
-                alerts.append(f"Metric {metric.name} has value {metric.value}, exceeding threshold {threshold}")
-        return alerts
+    def alert_significant_change(self, route_id: int, threshold: float):
+        current_performance = self.route_performances.get(route_id)
+        if current_performance and current_performance.on_time_rate < threshold:
+            return f"Route {route_id} has an on-time rate below {threshold}"
+        return None

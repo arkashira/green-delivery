@@ -1,39 +1,20 @@
 import pytest
-import json
-from src.performance_monitor import PerformanceMonitor, PerformanceMetric
+from performance_monitor import PerformanceMonitor, RoutePerformance
 
-def test_add_metric():
+def test_track_performance():
     monitor = PerformanceMonitor()
-    metric = PerformanceMetric("test_metric", 10.0)
-    monitor.add_metric(metric)
-    assert len(monitor.metrics) == 1
-    assert monitor.metrics[0].name == "test_metric"
-    assert monitor.metrics[0].value == 10.0
+    monitor.track_performance(1, 0.9, 30.0)
+    assert monitor.get_performance_report(1) == RoutePerformance(1, 0.9, 30.0)
 
-def test_get_report():
+def test_get_performance_report():
     monitor = PerformanceMonitor()
-    metric1 = PerformanceMetric("metric1", 10.0)
-    metric2 = PerformanceMetric("metric2", 20.0)
-    monitor.add_metric(metric1)
-    monitor.add_metric(metric2)
-    report = monitor.get_report()
-    assert json.loads(report) == {"metrics": [{"name": "metric1", "value": 10.0}, {"name": "metric2", "value": 20.0}]}
+    monitor.track_performance(1, 0.9, 30.0)
+    assert monitor.get_performance_report(1) == RoutePerformance(1, 0.9, 30.0)
+    assert monitor.get_performance_report(2) is None
 
-def test_alert_significant_changes():
+def test_alert_significant_change():
     monitor = PerformanceMonitor()
-    metric1 = PerformanceMetric("metric1", 10.0)
-    metric2 = PerformanceMetric("metric2", 30.0)
-    monitor.add_metric(metric1)
-    monitor.add_metric(metric2)
-    alerts = monitor.alert_significant_changes(20.0)
-    assert len(alerts) == 1
-    assert alerts[0] == "Metric metric2 has value 30.0, exceeding threshold 20.0"
-
-def test_alert_significant_changes_no_alerts():
-    monitor = PerformanceMonitor()
-    metric1 = PerformanceMetric("metric1", 10.0)
-    metric2 = PerformanceMetric("metric2", 15.0)
-    monitor.add_metric(metric1)
-    monitor.add_metric(metric2)
-    alerts = monitor.alert_significant_changes(20.0)
-    assert len(alerts) == 0
+    monitor.track_performance(1, 0.8, 30.0)
+    assert monitor.alert_significant_change(1, 0.9) == "Route 1 has an on-time rate below 0.9"
+    assert monitor.alert_significant_change(1, 0.7) is None
+    assert monitor.alert_significant_change(2, 0.9) is None
