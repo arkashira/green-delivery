@@ -1,34 +1,31 @@
+import json
 from dataclasses import dataclass
-from enum import Enum
-from typing import Dict, List
-
-class EmissionsSource(Enum):
-    CO2 = "CO2"
-    CH4 = "CH4"
-    N2O = "N2O"
+from typing import List
 
 @dataclass
-class Emissions:
-    source: EmissionsSource
-    amount: float
-
-@dataclass
-class Route:
+class DeliveryRoute:
     distance: float
-    emissions: List[Emissions]
+    fuel_consumption: float
+    emissions: float
 
 class EnvironmentalImpactCalculator:
-    def calculate(self, routes: List[Route]) -> Dict[str, float]:
-        total_emissions = {}
-        for route in routes:
-            for emission in route.emissions:
-                if emission.source.value not in total_emissions:
-                    total_emissions[emission.source.value] = 0
-                total_emissions[emission.source.value] += emission.amount
+    def __init__(self):
+        self.routes = []
+
+    def add_route(self, route: DeliveryRoute):
+        self.routes.append(route)
+
+    def calculate_environmental_impact(self) -> float:
+        total_emissions = sum(route.emissions for route in self.routes)
         return total_emissions
 
-    def suggest_reductions(self, total_emissions: Dict[str, float]) -> List[str]:
-        reductions = []
-        for source, amount in total_emissions.items():
-            reductions.append(f"Reduce {source} emissions by {amount:.2f} units")
-        return reductions
+    def display_environmental_impact(self) -> str:
+        impact = self.calculate_environmental_impact()
+        return f"Total environmental impact: {impact} kg CO2"
+
+    def suggest_reductions(self) -> List[str]:
+        suggestions = []
+        for route in self.routes:
+            if route.fuel_consumption > 10:
+                suggestions.append(f"Optimize route with distance {route.distance} km")
+        return suggestions

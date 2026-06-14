@@ -1,7 +1,11 @@
-# Performance Monitor
+# Environmental Impact Calculator
 
-A simple performance monitor that tracks key performance metrics and provides reports on their values. It also alerts users to significant changes in performance.
+A Python project to calculate the environmental impact of delivery routes.
 
 ## Usage
 
-To track a performance metric, use the `--track` option followed by the metric name and value:
+1. Create a `DeliveryRoute` object with distance, fuel consumption, and emissions.
+2. Add the route to the `EnvironmentalImpactCalculator` using `add_route`.
+3. Calculate the environmental impact using `calculate_environmental_impact`.
+4. Display the environmental impact using `display_environmental_impact`.
+5. Get suggestions for reducing environmental impact using `suggest_reductions`.
